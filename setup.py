@@ -1,15 +1,26 @@
+import os
 from setuptools import setup, find_packages
 
 # read the contents of your README file
-from os import path
-this_directory = path.abspath(path.dirname(__file__))
-with open(path.join(this_directory, 'README.md'), encoding='utf-8') as f:
+this_directory = os.path.abspath(os.path.dirname(__file__))
+with open(os.path.join(this_directory, 'README.md'), encoding='utf-8') as f:
     lines = f.readlines()
     long_description = ''.join(lines)
 
 print([
   package for package in find_packages() if package.startswith("robosuite")
 ])
+
+def package_files(directory, allow_extensions=None):
+    paths = []
+    for (path, _, filenames) in os.walk(directory):
+        for filename in filenames:
+            if allow_extensions and not any([filename.endswith(ext) for ext in allow_extensions]):
+                continue
+            paths.append(os.path.join('..', path, filename))
+    return paths
+
+extra_files = package_files('robosuite_task_zoo/models', allow_extensions=['py', 'xml', 'stl'])
 
 setup(
     name="robosuite_task_zoo",
@@ -23,6 +34,9 @@ setup(
     ],
     eager_resources=['*'],
     include_package_data=True,
+     package_data={
+        'robosuite_task_zoo': extra_files,
+    },
     python_requires='>=3',
     description="robosuite task zoo",
     author="Yuke Zhu",
